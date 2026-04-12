@@ -1,7 +1,8 @@
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import json
 
 def authenticate_google_sheets():
@@ -49,7 +50,10 @@ def update_spreadsheet_with_allocation(optimal_weights, balanced_portfolio, comp
         cell_interval = 'F2:F' + str(N+3)
         sheet.update(target_portfolio, cell_interval)
 
-        sheet.update_acell('H2', datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        italy_timezone = datetime.now(ZoneInfo("Europe/Rome"))
+
+        timestamp = italy_timezone.strftime("%Y-%m-%d %H:%M:%S")
+        sheet.update_acell('H2', timestamp)
         
     except Exception as e:
         print(f"Error updating the spreadsheet: {e}")
