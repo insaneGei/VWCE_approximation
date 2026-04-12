@@ -39,7 +39,7 @@ def main():
     swda_countries = SWDA_alloc_geo.sort_index().index.tolist()
 
     #get portfolio geographical info for XMME
-    df_temp = pd.read_excel(r'portfolio_allocations\XMME_allocation.xlsx', header=None)
+    df_temp = pd.read_excel(xmme_path, header=None)
     header_row_index = df_temp.index[df_temp.eq("Name").any(axis=1)].tolist()[0]
     XMME_alloc = pd.read_excel(xmme_path, skiprows=header_row_index, index_col = 0)
     XMME_alloc['Weighting'] = XMME_alloc['Weighting'].astype(float) * 100
@@ -49,7 +49,7 @@ def main():
     xmme_countries = XMME_alloc_geo.sort_index().index.tolist()
 
     #get portfolio geographical info for VWCE
-    VWCE_alloc_geo = pd.read_excel(r'portfolio_allocations/VWCE_allocation.xlsx', header = 0)
+    VWCE_alloc_geo = pd.read_excel(vwce_path, header = 0)
     VWCE_alloc_geo = VWCE_alloc_geo.rename(columns={'fundMktPercent': 'Weight'})
     VWCE_alloc_geo = VWCE_alloc_geo.reset_index().set_index('countryName')['Weight']
     vwce_countries = VWCE_alloc_geo.sort_index().index.to_list()
