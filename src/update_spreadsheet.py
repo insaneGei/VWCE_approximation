@@ -22,6 +22,8 @@ def update_spreadsheet_with_allocation(optimal_weights, balanced_portfolio, comp
         print(f"Error authenticating with Google Sheets: {e}")
 
     try:
+        # Clear old data before writing
+        sheet.batch_clear(["D2:F1000"])
 
         # Update optimal weights in the sheet
         sheet.update_acell('A2', optimal_weights[0])

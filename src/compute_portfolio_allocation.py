@@ -78,7 +78,22 @@ def main():
 
     # Fix a couple of name ambiguities in country names
     VWCE_alloc_geo = VWCE_alloc_geo.rename(index = {'United States of America': 'United States'})
-    XMME_alloc_geo = XMME_alloc_geo.rename(index = {'Korea, Republic of': 'South Korea'})
+    XMME_alloc_geo = XMME_alloc_geo.rename(index = {'Korea, Republic of': 'Korea'})
+
+    #There is still eteronimy in the way South Korea and Russia are named in the three datasets
+    if "South korea" in XMME_alloc_geo.index:
+        XMME_alloc_geo.rename(index = {'South korea': 'Korea'})
+    if "South Korea" in SWDA_alloc_geo.index:
+        SWDA_alloc_geo.rename(index = {'South Korea': 'Korea'})
+    if "South korea" in VWCE_alloc_geo.index:
+        VWCE_alloc_geo.rename(index = {'South korea': 'Korea'})
+
+    if "Russian Federation" in XMME_alloc_geo.index:
+        XMME_alloc_geo.rename(index = {"Russian Federation": 'Russia'})
+    if "Russian Federation" in SWDA_alloc_geo.index:
+        SWDA_alloc_geo.rename(index = {"Russian Federation": 'Russia'})
+    if "Russian Federation" in VWCE_alloc_geo.index:
+        VWCE_alloc_geo.rename(index = {"Russian Federation": 'Russia'})
 
     df_etf = pd.DataFrame({
     'SWDA': SWDA_alloc_geo,
@@ -105,6 +120,6 @@ def main():
         print(f"Errore durante l'aggiornamento del foglio di calcolo: {e}")
    
     print("Fine run")
-    
+
 if __name__ == "__main__":
     main()
