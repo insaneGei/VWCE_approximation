@@ -52042,11 +52042,11 @@
 <ss:Cell ss:StyleID="Right">
 <ss:Data ss:Type="Number">130408798878.01</ss:Data>
 </ss:Cell>
-<ss:Cell ss:StyleID="Left">
-<ss:Data ss:Type="String">--</ss:Data>
+<ss:Cell ss:StyleID="Right">
+<ss:Data ss:Type="Number">538.369259</ss:Data>
 </ss:Cell>
-<ss:Cell ss:StyleID="Left">
-<ss:Data ss:Type="String">--</ss:Data>
+<ss:Cell ss:StyleID="Right">
+<ss:Data ss:Type="Number">541.579954</ss:Data>
 </ss:Cell>
 </ss:Row>
 <ss:Row>
