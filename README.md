@@ -59,7 +59,7 @@ VWCE_approximation/
 
 ## Automation
 
-I wanted to periodically run this script since the geographical allocation of these funds varies in time. The fluctuation of the geographical allocation is quite likely insignificant and won't affect significantly the portfolio's performance, however i wanted to compute the best possible approximation at the moment of the month in which i buy my quota of these funds.
+I wanted to periodically run this script since the geographical allocation of these funds varies in time. The fluctuation of the geographical allocation is quite likely insignificant and won't affect significantly the portfolio's performance, however, i wanted to compute the best possible approximation at the moment of the month in which i buy my quota of these funds.
 
 The script runs automatically on the **17th of every month at midnight UTC** via GitHub Actions (`.github/workflows/monthly_run.yml`). It can also be triggered manually from the Actions tab using the `workflow_dispatch` event.
 
