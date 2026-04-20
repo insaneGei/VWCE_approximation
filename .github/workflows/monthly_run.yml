@@ -34,7 +34,7 @@ jobs:
         pip install pandas openpyxl numpy
 
     - name: Run script
-      run: python src/compute_portfolio_allocation.py
+      run: python src/vwce/compute_portfolio_allocation.py
 
     - name: Commit and Push changes
       run: |

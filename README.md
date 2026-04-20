@@ -23,36 +23,37 @@ VWCE_approximation/
 │
 ├── .github/
 │   └── workflows/
-│       └── monthly_run.yml          # GitHub Actions workflow: runs the pipeline monthly
+│       └── monthly_run.yml              # GitHub Actions workflow: runs the pipeline monthly
 │
 ├── notebooks/
-│   └── SWDA_balancing.ipynb         # Jupyter notebook for exploratory analysis
+│   └── VWCE_approximation.ipynb         # Jupyter notebook for exploratory analysis
 │
-├── portfolio_allocations/           # Downloaded and computed allocation files (auto-updated)
-│   ├── SWDA_allocation.xls          # Raw SWDA holdings downloaded from iShares
-│   ├── SWDA_allocation.csv          # SWDA holdings converted to CSV
-│   ├── XMME_allocation.xlsx         # Raw XMME holdings downloaded from DWS
-│   ├── VWCE_allocation.xlsx         # VWCE market allocation fetched from Vanguard API
-│   └── VWCE_market_allocation.xlsx  # (legacy) previous version of VWCE allocation
+├── portfolio_allocations/               # Downloaded and computed allocation files (auto-updated)
+│   ├── SWDA_allocation.xls              # Raw SWDA holdings downloaded from iShares
+│   ├── SWDA_allocation.csv              # SWDA holdings converted to CSV
+│   ├── XMME_allocation.xlsx             # Raw XMME holdings downloaded from DWS
+│   └── VWCE_allocation.xlsx             # VWCE market allocation fetched from Vanguard API
 │
 ├── src/
-│   ├── compute_portfolio_allocation.py  # Main entry point: orchestrates the full pipeline
-│   ├── download_data.py                 # Downloads latest ETF allocation data from provider websites
-│   ├── optimization_utils.py            # Scipy-based optimizer to find optimal SWDA/XMME weights
-│   ├── swda_xls_to_csv.py               # Converts the SWDA .xls file to a clean .csv
-│   └── update_spreadsheet.py            # Authenticates with Google Sheets and writes results
+│   ├── optimization/
+│   │   └── optimization_utils.py        # Generic SLSQP optimizer: approximate any target allocation
+│   └── vwce/
+│       ├── compute_portfolio_allocation.py  # Main entry point: orchestrates the full pipeline
+│       ├── download_data.py                 # Downloads latest ETF allocation data from provider websites
+│       ├── swda_xls_to_csv.py               # Converts the SWDA .xls file to a clean .csv
+│       └── update_spreadsheet.py            # Authenticates with Google Sheets and writes results
 │
-├── requirements.txt                 # Python dependencies
-└── README.md                        # This file
+├── requirements.txt                     # Python dependencies
+└── README.md                            # This file
 ```
 
 ### Module descriptions
 
-- **`compute_portfolio_allocation.py`** — Main script. Calls all other modules in sequence: downloads fresh data, converts formats, runs the optimization, and updates the Google Sheet.
-- **`download_data.py`** — Downloads the latest holdings data for SWDA (iShares), XMME (DWS/Xtrackers) and VWCE (Vanguard GraphQL API) and saves them under `portfolio_allocations/`.
-- **`swda_xls_to_csv.py`** — Converts the SWDA `.xls` file (which has a non-standard format) into a clean CSV suitable for pandas.
-- **`optimization_utils.py`** — Implements the SLSQP optimizer that finds the weights $(x, y)$ minimizing the distance between the blended SWDA+XMME portfolio and VWCE.
-- **`update_spreadsheet.py`** — Connects to the Google Sheets API using a service account (credentials stored as a GitHub Secret) and writes the optimal weights, country allocations, and a timestamp.
+- **`src/optimization/optimization_utils.py`** — Generic optimizer. `compute_optimal_weights(etf_allocations, target)` takes any DataFrame of ETF country allocations and a target allocation Series, and returns optimal weights via SLSQP. Not tied to any specific ETF.
+- **`src/vwce/compute_portfolio_allocation.py`** — Main script for the VWCE use case. Calls all other modules in sequence: downloads fresh data, converts formats, runs the optimization, and updates the Google Sheet.
+- **`src/vwce/download_data.py`** — Downloads the latest holdings data for SWDA (iShares), XMME (DWS/Xtrackers) and VWCE (Vanguard GraphQL API) and saves them under `portfolio_allocations/`.
+- **`src/vwce/swda_xls_to_csv.py`** — Converts the SWDA `.xls` file (SpreadsheetML XML format, not binary Excel) into a clean CSV suitable for pandas.
+- **`src/vwce/update_spreadsheet.py`** — Connects to the Google Sheets API using a service account (credentials stored as a GitHub Secret) and writes the optimal weights, country allocations, and a timestamp.
 
 ---
 
@@ -70,18 +71,16 @@ To run this project (locally or via GitHub Actions) you need a Google service ac
 
 ---
 
-## VWCE Approximation as a Linear Programming Problem
+## Portfolio Approximation as a Quadratic Programming Problem
 
-Let $\alpha$, $\beta$ be the vectors of geographical allocation of the SWDA and XMME ETFs respectively, and let $\gamma$ be the allocation vector of the VWCE ETF. We interpret these as $d$-dimensional vectors, where $d$ is the size of the union of all countries covered by the three funds.
+Let $A$ be the $d \times n$ matrix whose columns are the geographical allocation vectors of the $n$ available ETFs, and let $\gamma \in \mathbb{R}^d$ be the target allocation vector (VWCE in the default use case). Here $d$ is the number of countries in the union of all funds.
 
-We want to minimize the following function:
-
-$$
-f\colon \mathbb{R}^2 \to \mathbb{R}
-$$
+We want to find weights $w \in \mathbb{R}^n$ that solve:
 
 $$
-(x, y) \mapsto \|(\alpha, \beta) \cdot (x, y)^\top - \gamma\|^2
+\min_{w \in \mathbb{R}^n} \| A w - \gamma \|^2 \quad \text{subject to} \quad \sum_i w_i = 1
 $$
 
-which is convex. This is a standard constrained optimization problem, where the weights $(x, y)$ must satisfy the constraint $x + y = 1$ (full investment). We use `scipy.optimize.minimize` with the SLSQP method to solve it.
+This is a convex quadratic program. We solve it with `scipy.optimize.minimize` using the SLSQP method, starting from uniform weights $w_i = 1/n$.
+
+The VWCE approximation is a particular instance with $n = 2$ (SWDA and XMME), but `optimization_utils.compute_optimal_weights` works for any number of ETFs and any target.

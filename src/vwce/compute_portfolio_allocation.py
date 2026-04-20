@@ -1,11 +1,15 @@
-#imports
+import sys
+from pathlib import Path
+
+# Add src/ to path so the generic optimization package is importable
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import pandas as pd
 import numpy as np
-from swda_xls_to_csv import *
-from pathlib import Path
-import download_data 
-import update_spreadsheet 
-import optimization_utils 
+from swda_xls_to_csv import convert
+import download_data
+import update_spreadsheet
+from optimization import optimization_utils
 import pprint
 
 def main():
@@ -102,10 +106,11 @@ def main():
     }).fillna(0).sort_values( by = 'VWCE', ascending = False)
 
     # compute optimal weights for SWDA and XMME with a linear programming algorithm
-    optimal_weights = optimization_utils.compute_optimal_weights(df_etf)
+    etf_cols = ['SWDA', 'XMME']
+    optimal_weights = optimization_utils.compute_optimal_weights(df_etf[etf_cols], df_etf['VWCE'])
 
     # compare the obtained allocation to VWCE
-    balanced_allocation = optimal_weights[0] * df_etf['SWDA'] + optimal_weights[1] * df_etf['XMME']
+    balanced_allocation = df_etf[etf_cols].dot(optimal_weights)
 
     comparison_df = pd.DataFrame({
         'SWDA+XMME': balanced_allocation,
