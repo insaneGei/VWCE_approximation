@@ -120,9 +120,13 @@ def main():
     # update the spreadsheet with the new allocation and the comparison with VWCE
     try:
         update_spreadsheet.update_spreadsheet_with_allocation(optimal_weights, balanced_allocation, comparison_df)
-
     except Exception as e:
         print(f"Errore durante l'aggiornamento del foglio di calcolo: {e}")
+
+    try:
+        update_spreadsheet.log_portfolio_weights(optimal_weights, etf_cols)
+    except Exception as e:
+        print(f"Errore durante il logging dei pesi: {e}")
    
     print("Fine run")
 

@@ -5,14 +5,38 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import json
 
-def authenticate_google_sheets():
-    # authentication to google APIs
+def _get_gspread_client():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     credentials_json = json.loads(os.environ['GOOGLE_CREDENTIALS'])
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_json, scope)
-    client = gspread.authorize(credentials)
+    return gspread.authorize(credentials)
+
+
+def authenticate_google_sheets():
+    client = _get_gspread_client()
     spreadsheet = client.open("SWDA-XMME_periodic_rebalancing")
     return spreadsheet
+
+
+def log_portfolio_weights(optimal_weights, etf_columns):
+    client = _get_gspread_client()
+    log_name = "portfolio_weights_log"
+    try:
+        sheet = client.open(log_name).sheet1
+    except gspread.exceptions.SpreadsheetNotFound:
+        sheet = client.create(log_name).sheet1
+        sheet.append_row(["Date"] + list(etf_columns))
+
+    now = datetime.now(ZoneInfo("Europe/Rome"))
+    current_month = now.strftime("%Y-%m")
+
+    existing = sheet.col_values(1)[1:]  # skip header
+    if any(date.startswith(current_month) for date in existing):
+        print(f"Log already updated for {current_month}, skipping.")
+        return
+
+    row = [now.strftime("%Y-%m-%d %H:%M:%S")] + [round(float(w), 6) for w in optimal_weights]
+    sheet.append_row(row)
 
 
 def update_spreadsheet_with_allocation(optimal_weights, balanced_portfolio, comparison_df):
