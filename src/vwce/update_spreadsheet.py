@@ -1,14 +1,14 @@
-import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import json
+
+from auth.google_credentials import load_google_credentials_dict
+
 
 def _get_gspread_client():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    credentials_json = json.loads(os.environ['GOOGLE_CREDENTIALS'])
-    credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_json, scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(load_google_credentials_dict(), scope)
     return gspread.authorize(credentials)
 
 

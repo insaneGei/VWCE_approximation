@@ -67,7 +67,10 @@ After each run, the updated allocation files are committed and pushed back to th
 
 ### Required setup
 
-To run this project (locally or via GitHub Actions) you need a Google service account with access to the target Google Sheet. The credentials JSON must be stored as a GitHub repository secret named `GOOGLE_CREDENTIALS`.
+To run this project (locally or via GitHub Actions) you need a Google service account with access to the target Google Sheet.
+
+- **GitHub Actions**: the credentials JSON is stored as a repository secret named `GOOGLE_CREDENTIALS` and injected as an environment variable.
+- **Local runs**: place the same JSON at `secrets/google_credentials.json` (the `secrets/` folder is gitignored). The loader in `src/auth/google_credentials.py` prefers `GOOGLE_CREDENTIALS` and falls back to this file.
 
 ---
 

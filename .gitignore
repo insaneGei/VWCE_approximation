@@ -30,6 +30,7 @@ Thumbs.db
 
 # File di configurazione sensibili (opzionale ma consigliato)
 .env
+secrets/
 
 #data
 .xls
