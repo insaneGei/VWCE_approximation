@@ -12,7 +12,9 @@ The main reasons behind this exercise are mainly two:
 
 Moreover, I was happy to solve this problem with an optimization algorithm, which reminds me of my student career as a mathematician!
 
-A small viable development of this project is to add some notebooks with backtest analysis of the obtained portfolio, so as to learn something about financial quantitative analysis and risk analysis applied to something that interests me in first person: my own savings!
+A small viable development of this project is to add some notebooks with backtest analysis of the obtained portfolio, so as to learn some analysis metrics of financial instruments applied to something that interests me in first person: my own savings!
+
+This code may be reused in approximating any target portfolio using a set of other instruments (with respect to their geographical allocation) but beware: my use case of approximating VWCE with XMME and SWDA ETFs was motivated by prior knowledge of the market indexes those ETFs try to replicate (they are somehow complementary). This, in general, does not appy to each use case.
 
 ---
 
@@ -26,8 +28,9 @@ VWCE_approximation/
 │       └── monthly_run.yml              # GitHub Actions workflow: runs the pipeline monthly
 │
 ├── notebooks/
-│   └── VWCE_approximation.ipynb         # Jupyter notebook for exploratory analysis
-│
+│   └── VWCE_approximation.ipynb         # Jupyter notebook that shows how the main python module of this repo works 
+│   └── portfolio_evaluation.ipynb       # Jupyter notebook that compares approximated portfolio to benchmark
+|
 ├── portfolio_allocations/               # Downloaded and computed allocation files (auto-updated)
 │   ├── SWDA_allocation.xls              # Raw SWDA holdings downloaded from iShares
 │   ├── SWDA_allocation.csv              # SWDA holdings converted to CSV
